@@ -1,14 +1,30 @@
 package main
 
 import (
-	"go-health/server/healthsvc"
+	"go-health/healthsvc"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 )
 
+var (
+	// GitCommit, BuildTime, Get infos at build time the golang.
+	GitCommit string
+	BuildTime string
+)
+
+// buildInfoPrint display git short commit id, build time.
+// It is used to know the version of the launched application.
+func buildInfoPrint() {
+	// default log
+	log.Printf("Build Information : %v at %v\n", GitCommit, BuildTime)
+	log.Println("Started at :", time.Now().Format(time.RFC3339))
+}
+
 func main() {
+	buildInfoPrint()
 	server := grpc.NewServer()
 	// register service
 	if regiErr := healthsvc.RegisterService(server); regiErr != nil {
