@@ -42,6 +42,7 @@ func SendPing() {
 	timeoutSecs := 10
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSecs)*time.Second)
 	for {
+		//무한
 		defer cancel()
 		req := &health.PingReq{
 			RequesterName: "go-health-client",
