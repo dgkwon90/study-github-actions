@@ -5,7 +5,7 @@ services:
     container_name: server
     ports:
       - 9999:9999
-    image: server:1.0.0
+    image: ghcr.io/dgkwon90/study-github-actions/server:latest
 
     restart: always
     environment:
