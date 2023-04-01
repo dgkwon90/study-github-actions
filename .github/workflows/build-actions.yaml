@@ -16,12 +16,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  # Service Info
-  SERVICE_NAME: server
-  SERVICE_PORT: 9999
-  # Service Build Info
-  GIT_SHORT_COMMIT_ID: $(git rev-parse --short HEAD)
-  BUILD_TIME: $(date +'%Y-%m-%d_%H:%M')
 
 jobs:
   build-and-push-image:
@@ -31,6 +25,14 @@ jobs:
       packages: write
 
     steps:
+      - name: service with environment variables
+        id: add_service_env
+        run: |
+          echo "SERVICE_NAME=server" >> $GITHUB_ENV
+          echo "SERVICE_PORT=9999" >> $GITHUB_ENV
+          echo "GIT_SHORT_COMMIT_ID::$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "BUILD_TIME::$(date +'%Y-%m-%d_%H:%M')" >> $GITHUB_ENV
+
       - name: Check out repository code
         uses: actions/checkout@v3
 
