@@ -4,7 +4,7 @@
 # Use the official Golang image to create a build artifact.
 # This is based on Debian and sets the GOPATH to /go.
 # https://hub.docker.com/_/golang
-FROM golang:1.19-alpine AS build
+FROM golang:1.20-alpine AS build
 
 # Docker build ARG
 ARG SERVICE_NAME
@@ -31,16 +31,16 @@ COPY . ./
 # Build the binary.
 RUN go build -v -o service \
     -ldflags "-X 'main.GitCommit=${GIT_SHORT_COMMIT_ID}' -X 'main.BuildTime=${BUILD_TIME}'" \
-    ./cmd/${SERVICE_NAME}/main.go
+    ./${SERVICE_NAME}/cmd/${SERVICE_NAME}/main.go
 
 ###########################################
 # Base
 ############################################
 # This image is most useful in the context of building base images (such as debian and busybox)
-# or super minimal images 
+# or super minimal images
 # (that contain only a single binary and whatever it requires, such as hello-world).
 # https://hub.docker.com/_/scratch
-FROM scratch 
+FROM scratch
 
 # Copy the binary to the production image from the builder stage.
 COPY --from=build /app/service service

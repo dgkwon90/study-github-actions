@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-health/healthsvc"
+	"go-health/server/internal/healthsvc"
 	"log"
 	"net"
 	"os"
@@ -33,11 +33,11 @@ func main() {
 		log.Fatalf("failed to register: %v", regiErr)
 	}
 
-	hostname := os.Getenv("HOST_NAME")
+	hostname := os.Getenv("SERVICE_HOST_NAME")
 	if hostname == "" {
 		hostname = "" // default
 	}
-	port := os.Getenv("PORT")
+	port := os.Getenv("SERVICE_PORT")
 	if port == "" {
 		port = "9999" // default
 	}
