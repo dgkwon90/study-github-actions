@@ -14,8 +14,7 @@ on:
   pull_request:
     branches:
       - 'main'
-
-paths:
+    paths:
       - 'server/**'
 
 env:
