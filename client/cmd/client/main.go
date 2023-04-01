@@ -40,9 +40,9 @@ func SendPing() {
 	c := health.NewHealthClient(conn)
 
 	timeoutSecs := 10
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSecs)*time.Second)
-	defer cancel()
+
 	for {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSecs)*time.Second)
 		req := &health.PingReq{
 			RequesterName: "go-health-client",
 			Msg:           fmt.Sprintf("ping-%d", i),
@@ -55,6 +55,7 @@ func SendPing() {
 		log.Printf("<<< RECV Response SendPing ResponserName: %s, Msg: %s", res.ResponserName, res.Msg)
 		i++
 		sleepSecs := 10
+		cancel()
 		time.Sleep(time.Duration(sleepSecs) * time.Second)
 	}
 }
