@@ -30,8 +30,12 @@ jobs:
         run: |
           echo "SERVICE_NAME=server" >> $GITHUB_ENV
           echo "SERVICE_PORT=9999" >> $GITHUB_ENV
-          echo "GIT_SHORT_COMMIT_ID::$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "BUILD_TIME::$(date +'%Y-%m-%d_%H:%M')" >> $GITHUB_ENV
+
+      - name: build info
+        id: build_info
+        run: |
+          echo "::set-output name=GIT_SHORT_COMMIT_ID::$(git rev-parse --short HEAD)"
+          echo "::set-output name=BUILD_TIME::$(date +'%Y-%m-%d_%H:%M')"
 
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -64,5 +68,5 @@ jobs:
           build-args: |
             SERVICE_NAME=${{ env.SERVICE_NAME }}
             SERVICE_PORT=${{ env.SERVICE_PORT }}
-            GIT_SHORT_COMMIT_ID=${{ env.GIT_SHORT_COMMIT_ID }}
-            BUILD_TIME=${{ env.BUILD_TIME }}
+            GIT_SHORT_COMMIT_ID=${{ build_info.outputs.GIT_SHORT_COMMIT_ID }}
+            BUILD_TIME=${{ build_info.outputs.BUILD_TIME }}
