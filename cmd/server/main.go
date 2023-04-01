@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"go-health/healthsvc"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -31,7 +33,17 @@ func main() {
 		log.Fatalf("failed to register: %v", regiErr)
 	}
 
-	lis, err := net.Listen("tcp", ":9999")
+	hostname := os.Getenv("HOST_NAME")
+	if hostname == "" {
+		hostname = "" // default
+	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9999" // default
+	}
+
+	serverIP := fmt.Sprintf("%s:%s", hostname, port)
+	lis, err := net.Listen("tcp", serverIP)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

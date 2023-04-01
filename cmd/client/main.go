@@ -22,26 +22,27 @@ var (
 // It is used to know the version of the launched application.
 func buildInfoPrint() {
 	// default log
-	log.Printf("Build Information : %v at %v\n", GitCommit, BuildTime)
-	log.Println("Started at :", time.Now().Format(time.RFC3339))
+	log.Printf("Build Information: %v at %v\n", GitCommit, BuildTime)
+	log.Println("Started at:", time.Now().Format(time.RFC3339))
 }
 
 func SendPing() {
 	serverIP := os.Getenv("SERVER_IP")
-	if len(serverIP) <= 0 {
+	if serverIP == "" {
 		serverIP = "9999" // default
 	}
 
 	i := 0
-	for {
-		conn, connErr := grpc.Dial(serverIP, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if connErr != nil {
-			log.Fatalf("did not connect: %v", connErr)
-		}
-		c := health.NewHealthClient(conn)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-		defer cancel()
+	conn, connErr := grpc.Dial(serverIP, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if connErr != nil {
+		log.Fatalf("did not connect: %v", connErr)
+	}
+	c := health.NewHealthClient(conn)
 
+	timeoutSecs := 10
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSecs)*time.Second)
+	defer cancel()
+	for {
 		req := &health.PingReq{
 			RequesterName: "go-health-client",
 			Msg:           fmt.Sprintf("ping-%d", i),
@@ -49,11 +50,12 @@ func SendPing() {
 		log.Println(">>> SEND Request SendPing")
 		res, err := c.SendPing(ctx, req)
 		if err != nil {
-			log.Fatalf("could not get dokcing state: %v", err)
+			log.Panicf("could not get dokcing state: %v", err)
 		}
 		log.Printf("<<< RECV Response SendPing ResponserName: %s, Msg: %s", res.ResponserName, res.Msg)
 		i++
-		time.Sleep(10 * time.Second)
+		sleepSecs := 10
+		time.Sleep(time.Duration(sleepSecs) * time.Second)
 	}
 }
 
