@@ -8,7 +8,7 @@
 # You can also reference a tag or branch, but the action may change without warning.
 
 name: Create and publish a Clinet Service Docker image
-run-name: ${{ github.actor }} is pull request out GitHub Actions 🚀
+run-name: Client Service GitHub Actions 🚀
 
 on:
   pull_request:
@@ -28,8 +28,8 @@ jobs:
       packages: write
 
     steps:
-      # - name: Check out repository code
-      # - uses: actions/checkout@v3
+      - name: Check out repository code
+      - uses: actions/checkout@v3
       #   with:
       #     fetch-depth: 0
 
@@ -43,13 +43,14 @@ jobs:
         id: service_info
         run: |
           echo "SERVICE_NAME=client" >> $GITHUB_ENV
+          echo "SERVER_IP=server" >> $GITHUB_ENV
           echo "SERVICE_PORT=9999" >> $GITHUB_ENV
 
       - name: Added environment variable for version.
         id: version
         run: |
-          echo "::set-output name=GIT_SHORT_COMMIT_ID::$(git rev-parse --short HEAD)"
-          echo "::set-output name=BUILD_TIME::$(date +'%Y-%m-%d_%H:%M')"
+          echo "GIT_SHORT_COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "BUILD_TIME=$(date +'%Y-%m-%d_%H:%M')" >> $GITHUB_OUTPUT
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
@@ -72,12 +73,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./${{ env.SERVICE_NAME }}/build/Dockerfile
+          file: .${{ env.SERVICE_NAME }}/build/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SERVICE_NAME=${{ env.SERVICE_NAME }}
             SERVICE_PORT=${{ env.SERVICE_PORT }}
+            SERVER_IP=${{ env.SERVER_IP }}
             GIT_SHORT_COMMIT_ID=${{ steps.version.outputs.GIT_SHORT_COMMIT_ID }}
             BUILD_TIME=${{ steps.version.outputs.BUILD_TIME }}
