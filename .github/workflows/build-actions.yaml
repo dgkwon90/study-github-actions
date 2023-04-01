@@ -68,5 +68,5 @@ jobs:
           build-args: |
             SERVICE_NAME=${{ env.SERVICE_NAME }}
             SERVICE_PORT=${{ env.SERVICE_PORT }}
-            GIT_SHORT_COMMIT_ID=${{ build_info.outputs.GIT_SHORT_COMMIT_ID }}
-            BUILD_TIME=${{ build_info.outputs.BUILD_TIME }}
+            GIT_SHORT_COMMIT_ID=${{ steps.build_info.outputs.GIT_SHORT_COMMIT_ID }}
+            BUILD_TIME=${{ steps.build_info.outputs.BUILD_TIME }}
