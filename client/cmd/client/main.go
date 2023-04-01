@@ -23,7 +23,7 @@ var (
 func buildInfoPrint() {
 	// default log
 	log.Printf("Build Information: %v at %v\n", GitCommit, BuildTime)
-	log.Println("Started at:", time.Now().Format(time.RFC3339))
+	log.Println("Started at: ", time.Now().Format(time.RFC3339))
 }
 
 func SendPing() {
