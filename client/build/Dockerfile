@@ -31,7 +31,7 @@ COPY . ./
 # Build the binary.
 RUN go build -v -o service \
     -ldflags "-X 'main.GitCommit=${GIT_SHORT_COMMIT_ID}' -X 'main.BuildTime=${BUILD_TIME}'" \
-    ./cmd/${SERVICE_NAME}/main.go
+    ./${SERVICE_NAME}/cmd/${SERVICE_NAME}/main.go
 
 ###########################################
 # Base

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-health/healthsvc"
+	"go-health/server/internal/healthsvc"
 	"log"
 	"net"
 	"os"

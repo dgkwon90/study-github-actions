@@ -7,15 +7,19 @@
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
-name: Create and publish a Docker image
+name: Create and publish a Clinet Service Docker image
+run-name: ${{ github.actor }} is pull request out GitHub Actions 🚀
 
 on:
   pull_request:
     branches:
       - 'main'
+
+paths:
+      - 'client/**'
+
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-image:
@@ -25,20 +29,28 @@ jobs:
       packages: write
 
     steps:
-      - name: service with environment variables
-        id: add_service_env
+      # - name: Check out repository code
+      # - uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 0
+
+      # - name: Get changed files in the service folder
+      # - uses: tj-actions/changed-files@v35
+      #   id: changed-files-specific
+      #   with:
+      #     paths: client/**
+
+      - name: Added environment variable for service.
+        id: service_info
         run: |
-          echo "SERVICE_NAME=server" >> $GITHUB_ENV
+          echo "SERVICE_NAME=client" >> $GITHUB_ENV
           echo "SERVICE_PORT=9999" >> $GITHUB_ENV
 
-      - name: build info
-        id: build_info
+      - name: Added environment variable for version.
+        id: version
         run: |
           echo "::set-output name=GIT_SHORT_COMMIT_ID::$(git rev-parse --short HEAD)"
           echo "::set-output name=BUILD_TIME::$(date +'%Y-%m-%d_%H:%M')"
-
-      - name: Check out repository code
-        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
@@ -51,7 +63,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.SERVICE_NAME }}
           flavor: latest=true
           tags: |
             type=ref,event=pr
@@ -61,12 +73,12 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: build/Dockerfile
+          file: ${{ env.SERVICE_NAME }}/build/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SERVICE_NAME=${{ env.SERVICE_NAME }}
             SERVICE_PORT=${{ env.SERVICE_PORT }}
-            GIT_SHORT_COMMIT_ID=${{ steps.build_info.outputs.GIT_SHORT_COMMIT_ID }}
-            BUILD_TIME=${{ steps.build_info.outputs.BUILD_TIME }}
+            GIT_SHORT_COMMIT_ID=${{ steps.version.outputs.GIT_SHORT_COMMIT_ID }}
+            BUILD_TIME=${{ steps.version.outputs.BUILD_TIME }}
