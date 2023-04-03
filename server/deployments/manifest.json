@@ -1,0 +1,6 @@
+{
+    "description": "Server - Ping, Pong Service",
+    "version": "SERVICE_VERSION",
+    "images": ["Server.tgz"],
+    "icon": "fire.png"
+  }
