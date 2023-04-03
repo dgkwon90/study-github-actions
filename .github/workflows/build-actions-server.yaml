@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Container Build and Push to registry
-        uses: ./.github/actions/container-regitstry
+        uses: ./.github/actions/container-registry
         with:
           registry: 'ghcr.io'
           service_name: 'server'
