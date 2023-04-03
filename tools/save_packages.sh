@@ -22,6 +22,9 @@ cp $SERVICE_PATH/deployments/* packages/$SERVICE_PATH
 # UPDATE manifest.json
 sed -i 's/RELEASE_VERSION/'"$RELEASE_VERSION"'/' packages/$SERVICE_PATH/manifest.json
 
+# docker pull
+docker pull $CONTAINER_REGISTRY/$SERVICE_NAME
+
 # docker save to .tgz
 docker save $CONTAINER_REGISTRY/$SERVICE_NAME | gzip > packages/$SERVICE_PATH/$SERVICE_NAME.tgz
 
