@@ -50,7 +50,7 @@ jobs:
         id: pakages
         shell: bash
         run: |
-          sh ./tools/save_packages.sh ${{ env.SERVICE_PATH }} ${{ env.SERVICE_NAME }} ${{ env.RELEASE_VERSION }}
+          sh ./tools/save_packages.sh ${{ env.SERVICE_PATH }} ${{ env.SERVICE_NAME }} ${{ env.RELEASE_VERSION }} ${{ env.REGISTRY }}/${{ github.repository }}
 
       - name: Upload packages to release
         uses: svenstaro/upload-release-action@v2
