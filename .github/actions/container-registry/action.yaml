@@ -1,5 +1,8 @@
+
+# action name
 name: "container build and push to registery"
 
+# input arg
 inputs:
   registry:
     required: false
@@ -11,42 +14,45 @@ inputs:
     required: true
     default: '9999'
 
+# compsite action
 runs:
-  using: "composite"
+  using: 'composite'
+
+  # steps define
   steps:
-      - name: Added environment variable for version.
-        id: version
-        run: |
-            echo "GIT_SHORT_COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-            echo "BUILD_TIME=$(date +'%Y-%m-%d_%H:%M')" >> $GITHUB_OUTPUT
+    - name: Added environment variable for version.
+      id: version
+      run: |
+          echo "GIT_SHORT_COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "BUILD_TIME=$(date +'%Y-%m-%d_%H:%M')" >> $GITHUB_OUTPUT
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ inputs.registry }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ inputs.registry }}/${{ github.repository }}/${{ inputs.service_name }}
-          flavor: latest=true
-          tags: |
-            type=ref,event=pr
-            type=semver,pattern={{version}}
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ inputs.registry }}/${{ github.repository }}/${{ inputs.service_name }}
+        flavor: latest=true
+        tags: |
+          type=ref,event=pr
+          type=semver,pattern={{version}}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ${{ inputs.service_name }}/build/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            SERVICE_NAME=${{ inputs.service_name }}
-            SERVICE_PORT=${{ inputs.service_port }}
-            GIT_SHORT_COMMIT_ID=${{ steps.version.outputs.GIT_SHORT_COMMIT_ID }}
-            BUILD_TIME=${{ steps.version.outputs.BUILD_TIME }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ${{ inputs.service_name }}/build/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          SERVICE_NAME=${{ inputs.service_name }}
+          SERVICE_PORT=${{ inputs.service_port }}
+          GIT_SHORT_COMMIT_ID=${{ steps.version.outputs.GIT_SHORT_COMMIT_ID }}
+          BUILD_TIME=${{ steps.version.outputs.BUILD_TIME }}
