@@ -7,10 +7,9 @@
 FROM golang:1.20-alpine AS build
 
 # Docker build ARG
-ARG SERVICE_NAME
-ARG SERVICE_PORT
-ARG GIT_SHORT_COMMIT_ID
-ARG BUILD_TIME
+ARG SERVICE_NAME=client
+ARG SERVICE_PORT=0
+ARG BUILD_TIME=$(date +'%Y-%m-%d_%H:%M')
 
 ###########################################
 # Git package installation.
@@ -30,7 +29,7 @@ COPY . ./
 
 # Build the binary.
 RUN go build -v -o service \
-    -ldflags "-X 'main.GitCommit=${GIT_SHORT_COMMIT_ID}' -X 'main.BuildTime=${BUILD_TIME}'" \
+    -ldflags "-X 'main.GitCommit=$(git rev-parse --short HEAD)' -X 'main.BuildTime=${BUILD_TIME}'" \
     ./${SERVICE_NAME}/cmd/${SERVICE_NAME}/main.go
 
 ###########################################

@@ -21,8 +21,8 @@ var (
 // It is used to know the version of the launched application.
 func buildInfoPrint() {
 	// default log
-	log.Printf("Build Information : %v at %v\n", GitCommit, BuildTime)
-	log.Println("Started at :", time.Now().Format(time.RFC3339))
+	log.Printf("Build Information: %v at %v\n", GitCommit, BuildTime)
+	log.Println("Started at: ", time.Now().Format(time.RFC3339))
 }
 
 func main() {
