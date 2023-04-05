@@ -1,0 +1,51 @@
+name: Create and publish a Server Service Docker image
+run-name: Server Service GitHub Actions 🚀
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+env:
+  container_registry: ghcr.io
+
+jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    outputs:
+      # Expose matched filters as job 'services' output variable
+      packages: ${{ steps.filter.outputs.changes }}
+    steps:
+    # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            server: server/**
+            client: client/**
+
+  # JOB to build and test each of modified packages
+  build-and-push-image:
+    needs: changes
+    strategy:
+      matrix:
+        # Parse JSON array containing names of all filters matching any of changed files
+        # e.g. ['package1', 'package2'] if both package folders contains changes
+        package: ${{ fromJSON(needs.changes.outputs.packages) }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Added environment variable for package.
+        id: package_info
+        run: |
+          echo packages ${{ matrix.package }}
