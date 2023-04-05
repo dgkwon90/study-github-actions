@@ -6,7 +6,7 @@ on:
     branches:
       - 'main'
 env:
-  container_registry: ghcr.io
+  CONTAINER_REGISTRY: ghcr.io
 
 jobs:
   # JOB to run change detection
@@ -27,13 +27,13 @@ jobs:
             server: server/**
             client: client/**
 
-  # JOB to build and test each of modified packages
+  # JOB to build and push each of modified packages
   build-and-push-image:
     needs: changes
     strategy:
       matrix:
         # Parse JSON array containing names of all filters matching any of changed files
-        # e.g. ['package1', 'package2'] if both package folders contains changes
+        # e.g. ['server', 'client'] if both package folders contains changes
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
@@ -45,7 +45,44 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Added environment variable for package.
-        id: package_info
-        run: |
-          echo packages ${{ matrix.package }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}/${{ env.SERVICE_NAME }}
+          flavor: latest=true
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Log in to the Container Registry
+        #if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push Container image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ${{ env.SERVICE_NAME }}/build/Dockerfile
+          push: #${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # build-args: |
+          #   SERVICE_NAME=${{ env.SERVICE_NAME }}
+          #   SERVICE_PORT=${{ env.SERVICE_PORT }}
+          #   SERVER_IP=${{ env.SERVER_IP }}
+          #   GIT_SHORT_COMMIT_ID=${{ env.GIT_SHORT_COMMIT_ID }}
+          #   BUILD_TIME=${{ env.BUILD_TIME }}
