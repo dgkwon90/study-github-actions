@@ -7,10 +7,10 @@
 FROM golang:1.20-alpine AS build
 
 # Docker build ARG
-ARG SERVICE_NAME
-ARG SERVICE_PORT
-ARG GIT_SHORT_COMMIT_ID
-ARG BUILD_TIME
+ARG SERVICE_NAME=client
+ARG SERVICE_PORT=0
+ARG GIT_SHORT_COMMIT_ID=$(git rev-parse --short HEAD)
+ARG BUILD_TIME=$(date +'%Y-%m-%d_%H:%M')
 
 ###########################################
 # Git package installation.

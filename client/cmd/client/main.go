@@ -47,7 +47,7 @@ func SendPing() {
 			RequesterName: "go-health-client",
 			Msg:           fmt.Sprintf("ping-%d", i),
 		}
-		log.Println(">>> SEND Request SendPing")
+		log.Println(">>> >>> SEND Request SendPing")
 		res, err := c.SendPing(ctx, req)
 		if err != nil {
 			log.Panicf("could not get dokcing state: %v", err)
